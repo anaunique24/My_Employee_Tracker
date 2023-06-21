@@ -13,7 +13,7 @@ app.get('/api/department', (req, res) => {
     })
 });
 
-//Update
+//Create
 app.post(`api/add-department`, (req, res) => {
     db.query('INSERT INTO department (name) VALUES (?)', [req.body.department], (err, result) => {
         if (err) {
