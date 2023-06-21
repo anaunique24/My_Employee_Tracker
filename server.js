@@ -1,22 +1,34 @@
 const express = require('express');
 const inquirer = require('inquirer');
-const sql = require('mysql2');
+const db = require('./db/connection');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+//setting up middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-const db = mysql.createConnection(
-  {
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'root',
-    database: 'employee_db'
-  },
-  console.log(`Connected to the employee_db database.`)
-);
+app.use('/api', routes);
+
+  inquirer
+    .prompt([
+      {
+        type: "rawlist",
+        name: "startMenu",
+        message: "What would you like to do?",
+        choices: [
+          "view all departments",
+          "view all roles",
+          "view all employees",
+          "add a department",
+          "add a role",
+          "add an employee",
+          "update an employee role",
+        ],
+      },
+    ])
+
 
 app.listen(PORT, () => {
     console.log(`App listening at http://localhost:${PORT}`);
