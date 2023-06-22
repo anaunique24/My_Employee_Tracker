@@ -20,7 +20,8 @@ inquirer.prompt([
     },
 ])
 .then(function (answer) {
-  switch (answer) {
+  console.log(answer);
+  switch (answer.startMenu) {
     case "View all departments":
       viewAllDepartments();
       break;
@@ -30,7 +31,7 @@ inquirer.prompt([
     case "View all roles":
       viewAllRoles();
       break;
-    case "Add a role":
+    case "Add role":
       addRole();
       break;
     case "View all employees":
@@ -42,9 +43,6 @@ inquirer.prompt([
     case "Update an existing employees role":
       updateRole();
       break;
-    case "Exit":
-      connect.end;
-      break;
   }
 })
 }
@@ -54,7 +52,8 @@ function viewAllDepartments() {
     if (err) {
       console.log(err);
   }
-  res.json(result);
+  console.table(res);
+  start();
   });
 };
 function addDepartment() {
@@ -65,7 +64,7 @@ function addDepartment() {
       message: "Please enter the name of the new department"
     })
     .then(function (answer) {
-      connection.query("INSERT INTO department SET ?", { name: answer.department }, function (err, res) {
+      db.query("INSERT INTO department SET ?", { name: answer.department }, function (err, res) {
           if (err) throw err;
           console.log("Department added successfully!");
           start();
@@ -78,7 +77,8 @@ function viewAllEmployees() {
     if (err) {
       console.log(err);
   }
-  res.json(result);
+  console.table(res);
+  start();
   });
 };
 function addEmployee() {
@@ -89,7 +89,7 @@ function addEmployee() {
       message: "Please enter the name of the new employee"
     })
     .then(function (answer) {
-      connection.query("INSERT INTO employee SET ?", { name: answer.employee }, function (err, res) {
+      db.query("INSERT INTO employee SET ?", { name: answer.employee }, function (err, res) {
           if (err) throw err;
           console.log("Empolyee added successfully!");
           start();
@@ -101,7 +101,8 @@ function viewAllRoles() {
     if (err) {
       console.log(err);
   }
-  res.json(result);
+  console.table(res);
+  start();
   });
 };
 function addRole() {
@@ -112,7 +113,7 @@ function addRole() {
       message: "Please enter the name of the new role"
     })
     .then(function (answer) {
-      connection.query("INSERT INTO role SET ?", { name: answer.role }, function (err, res) {
+      db.query("INSERT INTO role SET ?", { name: answer.role }, function (err, res) {
           if (err) throw err;
           console.log("New role added successfully!");
           start();
@@ -136,7 +137,7 @@ function updateRole() {
           },
       ])
       .then(function (answer) {
-          connection.query('UPDATE employee SET ? WHERE ?', [{ role_id: answer.roleId }, { id: answer.employeeId }], function (err) {
+          db.query('UPDATE employee SET ? WHERE ?', [{ role_id: answer.roleId }, { id: answer.employeeId }], function (err) {
               if (err) throw err;
               console.log('Employee role updated successfully!');
               start();
