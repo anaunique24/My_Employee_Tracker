@@ -1,20 +1,7 @@
-const express = require('express');
 const inquirer = require('inquirer');
 const db = require('./db/connection');
-const path = require('path');
 
-const api = require('./routes/index');
-
-const PORT = process.env.PORT || 3001;
-const app = express();
-
-//setting up middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-app.use('/api/', api);
-
-const startPage =
+function start(){
 inquirer.prompt([
     {
         type: "list",
@@ -28,49 +15,133 @@ inquirer.prompt([
           "View all employees",
           "Add an employee",
           "Update an employee role",
+          "Exit",
         ],
     },
-    {
-        type: "list",
-        message: "Choose the Department you would like to view.",
-        name: "departments",
-        choices: ["Sales", "Legal", "Finance", "Engineering"],
-    },
-    {
-        type: "input",
-        message: "Please enter the name of the new department.",
-        name: "add-department",
-    },
-    {
-        type: "list",
-        message: "Choose the role you would like to view",
-        name: "roles",
-        choices: ["Account Manager", "Accountant", "Sales Manager", "Salesperson", "Lead Engineer", "Software Engineer", "Legal Team Lead", "Lawyer"],
-    },
-    {
-        type: "input",
-        message: "Please enter the role you would like to add.",
-        name: "add-role",
-    },
-    {
-        type: "list",
-        message: "Which Employee would you like to view",
-        name: "employee options",
-        choices: [""]
-    },
-    {
-        type: "input",
-        message: "Please enter the name of the new employee",
-        name: "new-employee",
-    },
-    {
-        type: "input",
-        message: "Who's role would you like to update?",
-        name: "update-role",
-    },
 ])
+.then(function (answer) {
+  switch (answer) {
+    case "View all departments":
+      viewAllDepartments();
+      break;
+    case "Add a department":
+      addDepartment();
+      break;
+    case "View all roles":
+      viewAllRoles();
+      break;
+    case "Add a role":
+      addRole();
+      break;
+    case "View all employees":
+      viewAllEmployees();
+      break;
+    case "Add an employee":
+      addEmployee();
+      break;
+    case "Update an existing employees role":
+      updateRole();
+      break;
+    case "Exit":
+      connect.end;
+      break;
+  }
+})
+}
 
-
-app.listen(PORT, () => {
-    console.log(`App listening at http://localhost:${PORT}`);
+function viewAllDepartments() {
+  db.query('SELECT * FROM department;', (err, res) => {
+    if (err) {
+      console.log(err);
+  }
+  res.json(result);
   });
+};
+function addDepartment() {
+  inquirer
+    .prompt({
+      name: "department",
+      type: "input",
+      message: "Please enter the name of the new department"
+    })
+    .then(function (answer) {
+      connection.query("INSERT INTO department SET ?", { name: answer.department }, function (err, res) {
+          if (err) throw err;
+          console.log("Department added successfully!");
+          start();
+        })
+      })
+}
+
+function viewAllEmployees() {
+  db.query('SELECT * FROM employee;', (err, res) => {
+    if (err) {
+      console.log(err);
+  }
+  res.json(result);
+  });
+};
+function addEmployee() {
+  inquirer
+    .prompt({
+      name: "employees",
+      type: "input",
+      message: "Please enter the name of the new employee"
+    })
+    .then(function (answer) {
+      connection.query("INSERT INTO employee SET ?", { name: answer.employee }, function (err, res) {
+          if (err) throw err;
+          console.log("Empolyee added successfully!");
+          start();
+        })
+      })
+};
+function viewAllRoles() {
+  db.query('SELECT * FROM role;', (err, res) => {
+    if (err) {
+      console.log(err);
+  }
+  res.json(result);
+  });
+};
+function addRole() {
+  inquirer
+    .prompt({
+      name: "roles",
+      type: "input",
+      message: "Please enter the name of the new role"
+    })
+    .then(function (answer) {
+      connection.query("INSERT INTO role SET ?", { name: answer.role }, function (err, res) {
+          if (err) throw err;
+          console.log("New role added successfully!");
+          start();
+        })
+      })
+};
+function updateRole() {
+  inquirer
+      .prompt([
+          {
+              name: 'employeeId',
+              type: 'list',
+              message: 'Which employee role would you like to update?',
+              choices: employeeChoices,
+          },
+          {
+              name: 'roleId',
+              type: 'list',
+              message: 'Which role would you like to assign to the employee?',
+              choices: roleChoices,
+          },
+      ])
+      .then(function (answer) {
+          connection.query('UPDATE employee SET ? WHERE ?', [{ role_id: answer.roleId }, { id: answer.employeeId }], function (err) {
+              if (err) throw err;
+              console.log('Employee role updated successfully!');
+              start();
+          });
+      });
+};
+
+start();
